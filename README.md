@@ -70,12 +70,29 @@ The application lets users:
 
 ### Tables
 
+#### `user` Table
+Represents registered user accounts with authentication credentials.
+
+| Column | Type | Constraints | Purpose |
+|--------|------|-------------|---------|
+| `id` | INTEGER | PRIMARY KEY | Unique user identifier |
+| `username` | VARCHAR | NOT NULL, INDEX, UNIQUE | Login username |
+| `email` | VARCHAR | NOT NULL, INDEX, UNIQUE | User email address |
+| `password_hash` | VARCHAR | NOT NULL | Hashed password (pbkdf2_sha256) |
+| `created_at` | DATETIME | DEFAULT: NOW | Account creation timestamp |
+
+**Relationships:**
+- Has many Hobbies (cascade delete enabled)
+
+---
+
 #### `hobby` Table
 Represents user-created or preset hobbies.
 
 | Column | Type | Constraints | Purpose |
 |--------|------|-------------|---------|
 | `id` | INTEGER | PRIMARY KEY | Unique hobby identifier |
+| `user_id` | INTEGER | FOREIGN KEY → user.id, INDEX | Owner of the hobby |
 | `name` | VARCHAR | NOT NULL, INDEX | Hobby name (searchable) |
 | `category` | VARCHAR | NOT NULL | CreativePhysicalIntellectual |
 | `description` | TEXT | | Hobby details |
@@ -88,6 +105,7 @@ Represents user-created or preset hobbies.
 | `last_activity_at` | DATETIME | | Last quest activity |
 
 **Relationships:**
+- Belongs to one User
 - Has many Quests (cascade delete enabled)
 
 ---
@@ -609,9 +627,3 @@ quest_master/
 - **Validation:** XP and hours spent cannot be negative; preset joins are idempotent (409 conflict on duplicate)
 
 ---
-
-## Contact & Support
-
-For issues or questions about the application, refer to the API documentation at:
-- **Swagger UI:** http://localhost:8000/docs
-- **ReDoc:** http://localhost:8000/redoc
