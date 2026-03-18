@@ -462,6 +462,37 @@ All hobby and quest endpoints require a bearer token from the auth endpoints.
 }
 ```
 
+## Postman Testing
+
+### Import Postman Collection
+
+1. Open **Postman** (download from [postman.com](https://www.postman.com/downloads/))
+2. Click **Import** (top left)
+3. Select the file: `Quest_Master.postman_collection.json`
+4. All API endpoints will be ready for testing
+
+### Collection Structure
+
+The collection includes:
+- **Auth Endpoints** - Register, login, and read current user
+- **Hobby Endpoints** - Create, read, update, delete hobbies
+- **Preset Hobbies** - Browse and join preset hobbies
+- **Quest Endpoints** - Manage quests
+- **Statistics** - Fetch hobby and global stats
+
+### Example Test Workflow
+
+1. **POST /auth/register** - Create test account
+2. **POST /auth/login** - Log in and get token
+3. **GET /hobbies** - List all hobbies for current user
+4. **GET /preset-hobbies** - Browse preset catalog
+5. **POST /preset-hobbies/{slug}/join** - Join a preset
+6. **POST /quests** - Add a quest to the hobby
+7. **PATCH /quests/{id}** - Mark quest as "Doing" or "Done"
+8. **GET /hobbies/{id}/stats** - Check hobby progress
+9. **GET /stats/global** - View global statistics
+10. **DELETE /hobbies/{id}** - Clean up test data
+
 ---
 
 ## How to Run the Application
@@ -532,98 +563,7 @@ All hobby and quest endpoints require a bearer token from the auth endpoints.
 
 ### Running Both Together
 
-**Option 1: Separate Terminals**
 - Terminal 1: `cd backend && uvicorn main:app --reload`
 - Terminal 2: `cd frontend && npm run dev`
-
-**Option 2: Using a Process Manager** (like concurrently):
-```bash
-npm install -g concurrently  # Install once globally
-concurrently "cd backend && uvicorn main:app --reload" "cd frontend && npm run dev"
-```
-
----
-
-## Postman Testing
-
-### Import Postman Collection
-
-1. Open **Postman** (download from [postman.com](https://www.postman.com/downloads/))
-2. Click **Import** (top left)
-3. Select the file: `Quest_Master.postman_collection.json`
-4. All API endpoints will be ready for testing
-
-### Collection Structure
-
-The collection includes:
-- **Auth Endpoints** - Register, login, and read current user
-- **Hobby Endpoints** - Create, read, update, delete hobbies
-- **Preset Hobbies** - Browse and join preset hobbies
-- **Quest Endpoints** - Manage quests
-- **Statistics** - Fetch hobby and global stats
-
-### Example Test Workflow
-
-1. **POST /auth/register** - Create test account
-2. **POST /auth/login** - Log in and get token
-3. **GET /hobbies** - List all hobbies for current user
-4. **GET /preset-hobbies** - Browse preset catalog
-5. **POST /preset-hobbies/{slug}/join** - Join a preset
-6. **POST /quests** - Add a quest to the hobby
-7. **PATCH /quests/{id}** - Mark quest as "Doing" or "Done"
-8. **GET /hobbies/{id}/stats** - Check hobby progress
-9. **GET /stats/global** - View global statistics
-10. **DELETE /hobbies/{id}** - Clean up test data
-
----
-
-## Features Implemented
-
-✅ **REST API** - Full CRUD operations with proper HTTP methods and status codes  
-✅ **User Accounts** - Register/login flow with JWT bearer auth  
-✅ **Database** - SQLite schema with relationships and validations  
-✅ **Client Interface** - React app with pages for Dashboard, Browse, Quests, Analytics  
-✅ **Gamification** - XP system, quest difficulty levels, mastery tracking  
-✅ **Preset Catalog** - Pre-made hobbies with quest templates  
-✅ **Statistics** - Per-hobby and global progress metrics  
-✅ **UI Components** - shadcn/ui for modern, accessible interface  
-
----
-
-## File Structure
-
-```
-quest_master/
-├── backend/
-│   ├── main.py                 # FastAPI application & endpoints
-│   ├── models.py               # SQLModel schemas & database tables
-│   ├── database.py             # Database connection & initialization
-│   ├── database.db             # SQLite database file
-│   ├── preset_hobbies.py       # Preset catalog data
-│   └── requirements.txt         # Python dependencies
-├── frontend/
-│   ├── src/
-│   │   ├── App.tsx             # Root component
-│   │   ├── routes.tsx          # Router & layout
-│   │   ├── main.jsx            # Entry point
-│   │   ├── pages/              # Page components
-│   │   ├── components/         # UI components
-│   │   │   └── ui/            # shadcn/ui primitives
-│   │   ├── lib/                # Utilities
-│   │   └── styles/             # Tailwind & CSS
-│   ├── package.json            # Node dependencies
-│   ├── vite.config.js          # Vite configuration
-│   └── tsconfig.json           # TypeScript configuration
-└── README.md                   # This file
-```
-
----
-
-## Notes & References
-
-- **Cascading Deletes:** Deleting a hobby automatically removes all associated quests
-- **Auto-Timestamps:** `created_at`, `updated_at`, and `completed_at` are managed automatically
-- **Legacy Compatibility:** `is_completed` boolean synced with `status` enum for backward compatibility
-- **Validation:** XP and hours spent cannot be negative; preset joins are idempotent (409 conflict on duplicate)
 
 ---
