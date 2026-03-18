@@ -28,6 +28,21 @@ class QuestStatus(str, Enum):
     DONE = "Done"
 
 
+class UserBase(SQLModel):
+    """Shared user fields used by auth schemas and DB model."""
+    username: str = Field(index=True, unique=True)
+    email: str = Field(index=True, unique=True)
+
+
+class User(UserBase, table=True):
+    """Database table for authenticated users."""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    password_hash: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+    hobbies: List["Hobby"] = Relationship(back_populates="user", cascade_delete=True)
+
+
 class HobbyBase(SQLModel):
     """Shared hobby fields used by create/read DB and API schemas."""
     name: str = Field(index=True)
@@ -50,11 +65,13 @@ class HobbyBase(SQLModel):
 class Hobby(HobbyBase, table=True):
     """Database table for hobbies."""
     id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: Optional[int] = Field(default=None, foreign_key="user.id", index=True)
     is_mastered: bool = Field(default=False)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     last_activity_at: Optional[datetime] = None
 
+    user: Optional[User] = Relationship(back_populates="hobbies")
     quests: List["Quest"] = Relationship(back_populates="hobby", cascade_delete=True)
 
 
@@ -208,3 +225,25 @@ class PresetHobbyRead(SQLModel):
 class PresetHobbyJoinResponse(SQLModel):
     already_joined: bool
     hobby: HobbyReadWithQuests
+
+
+class UserRegister(SQLModel):
+    username: str
+    email: str
+    password: str
+
+
+class UserLogin(SQLModel):
+    username: str
+    password: str
+
+
+class UserRead(UserBase):
+    id: int
+    created_at: datetime
+
+
+class AuthToken(SQLModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserRead

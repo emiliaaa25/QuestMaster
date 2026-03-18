@@ -42,6 +42,7 @@ def migrate_legacy_schema():
 
     with sqlite3.connect(db_file_path) as connection:
         if _table_exists(connection, "hobby"):
+            _add_column_if_missing(connection, "hobby", "user_id", "user_id INTEGER")
             _add_column_if_missing(connection, "hobby", "created_at", "created_at TEXT")
             _add_column_if_missing(connection, "hobby", "description", "description TEXT")
             _add_column_if_missing(connection, "hobby", "icon", "icon TEXT DEFAULT '🎯'")
@@ -108,6 +109,12 @@ def migrate_legacy_schema():
             connection.execute("UPDATE quest SET updated_at=created_at WHERE updated_at IS NULL")
             connection.execute(
                 "UPDATE quest SET completed_at=updated_at WHERE status='Done' AND completed_at IS NULL"
+            )
+
+        if _table_exists(connection, "user"):
+            _add_column_if_missing(connection, "user", "email", "email TEXT")
+            connection.execute(
+                "UPDATE user SET email=(LOWER(username) || '@questmaster.local') WHERE email IS NULL OR TRIM(email)=''"
             )
 
         connection.commit()

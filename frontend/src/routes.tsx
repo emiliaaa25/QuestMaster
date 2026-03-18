@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Navigate, useLocation } from 'react-router-dom';
 import { Dashboard } from './pages/Dashboard';
 import { MasteryTracks } from './pages/MasteryTracks';
 import { QuestBoard } from './pages/QuestBoard';
@@ -8,6 +8,24 @@ import { SidebarProvider, SidebarInset, SidebarTrigger } from './components/ui/s
 import { AppSidebar } from './components/AppSidebar';
 import { Toaster } from './components/ui/sonner';
 import { BrowseHobbies } from './pages/BrowseHobbies';
+import { Login } from './pages/Login';
+import { apiUtils } from './utils/apiUtils';
+import { Register } from './pages/Register';
+
+function RequireAuth({ children }: { children: ReactNode }) {
+  const location = useLocation();
+  if (!apiUtils.isAuthenticated()) {
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  }
+  return <>{children}</>;
+}
+
+function RedirectIfAuth({ children }: { children: ReactNode }) {
+  if (apiUtils.isAuthenticated()) {
+    return <Navigate to="/" replace />;
+  }
+  return <>{children}</>;
+}
 
 function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -41,45 +59,75 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: (
-      <RootLayout>
-        <Dashboard />
-      </RootLayout>
+      <RequireAuth>
+        <RootLayout>
+          <Dashboard />
+        </RootLayout>
+      </RequireAuth>
     ),
   },
   {
     path: '/browse',
-    element: <RootLayout><BrowseHobbies /></RootLayout>,
+    element: (
+      <RequireAuth>
+        <RootLayout><BrowseHobbies /></RootLayout>
+      </RequireAuth>
+    ),
   },
   {
     path: '/tracks',
     element: (
-      <RootLayout>
-        <MasteryTracks />
-      </RootLayout>
+      <RequireAuth>
+        <RootLayout>
+          <MasteryTracks />
+        </RootLayout>
+      </RequireAuth>
     ),
   },
   {
     path: '/quests',
     element: (
-      <RootLayout>
-        <QuestBoard />
-      </RootLayout>
+      <RequireAuth>
+        <RootLayout>
+          <QuestBoard />
+        </RootLayout>
+      </RequireAuth>
     ),
   },
   {
     path: '/analytics',
     element: (
-      <RootLayout>
-        <Analytics />
-      </RootLayout>
+      <RequireAuth>
+        <RootLayout>
+          <Analytics />
+        </RootLayout>
+      </RequireAuth>
+    ),
+  },
+  {
+    path: '/login',
+    element: (
+      <RedirectIfAuth>
+        <Login />
+      </RedirectIfAuth>
+    ),
+  },
+  {
+    path: '/register',
+    element: (
+      <RedirectIfAuth>
+        <Register />
+      </RedirectIfAuth>
     ),
   },
   {
     path: '*',
     element: (
-      <RootLayout>
-        <NotFound />
-      </RootLayout>
+      <RequireAuth>
+        <RootLayout>
+          <NotFound />
+        </RootLayout>
+      </RequireAuth>
     ),
   },
 ]);

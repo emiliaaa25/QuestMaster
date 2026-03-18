@@ -72,6 +72,19 @@ export interface PresetHobby {
   quests: PresetQuest[];
 }
 
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  createdAt: string;
+}
+
+export interface AuthResponse {
+  accessToken: string;
+  tokenType: string;
+  user: User;
+}
+
 export const DIFFICULTY_XP: Record<DifficultyLevel, number> = {
   Easy: 10,
   Medium: 25,

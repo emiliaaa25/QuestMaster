@@ -1,5 +1,6 @@
 import axios from 'axios';
 import {
+  type AuthResponse,
   DIFFICULTY_XP,
   type DifficultyLevel,
   type Hobby,
@@ -10,10 +11,21 @@ import {
   type Quest,
   type QuestFormData,
   type QuestStatus,
+  type User,
 } from '../types';
+
+const AUTH_TOKEN_KEY = 'questmaster.auth.token';
 
 const api = axios.create({
   baseURL: '/api',
+});
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem(AUTH_TOKEN_KEY);
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 interface BackendHobby {
@@ -76,6 +88,19 @@ interface BackendPresetJoinResponse {
   hobby: BackendHobbyWithQuests;
 }
 
+interface BackendUser {
+  id: number;
+  username: string;
+  email: string;
+  created_at: string;
+}
+
+interface BackendAuthResponse {
+  access_token: string;
+  token_type: string;
+  user: BackendUser;
+}
+
 const toFrontendHobby = (hobby: BackendHobby): Hobby => ({
   id: hobby.id,
   name: hobby.name,
@@ -88,6 +113,19 @@ const toFrontendHobby = (hobby: BackendHobby): Hobby => ({
   createdAt: hobby.created_at,
   updatedAt: hobby.updated_at,
   lastActivityAt: hobby.last_activity_at,
+});
+
+const toFrontendUser = (user: BackendUser): User => ({
+  id: user.id,
+  username: user.username,
+  email: user.email,
+  createdAt: user.created_at,
+});
+
+const toFrontendAuth = (auth: BackendAuthResponse): AuthResponse => ({
+  accessToken: auth.access_token,
+  tokenType: auth.token_type,
+  user: toFrontendUser(auth.user),
 });
 
 const toBackendHobby = (hobby: Partial<HobbyFormData>) => ({
@@ -154,6 +192,52 @@ const toBackendQuest = (quest: Partial<QuestFormData>) => {
 };
 
 export const apiUtils = {
+  getToken() {
+    return localStorage.getItem(AUTH_TOKEN_KEY);
+  },
+
+  setToken(token: string) {
+    localStorage.setItem(AUTH_TOKEN_KEY, token);
+  },
+
+  clearToken() {
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+  },
+
+  isAuthenticated() {
+    return Boolean(localStorage.getItem(AUTH_TOKEN_KEY));
+  },
+
+  async register(username: string, email: string, password: string) {
+    const { data } = await api.post<BackendAuthResponse>('/auth/register', {
+      username,
+      email,
+      password,
+    });
+    const auth = toFrontendAuth(data);
+    apiUtils.setToken(auth.accessToken);
+    return auth;
+  },
+
+  async login(identifier: string, password: string) {
+    const { data } = await api.post<BackendAuthResponse>('/auth/login', {
+      username: identifier,
+      password,
+    });
+    const auth = toFrontendAuth(data);
+    apiUtils.setToken(auth.accessToken);
+    return auth;
+  },
+
+  async me() {
+    const { data } = await api.get<BackendUser>('/auth/me');
+    return toFrontendUser(data);
+  },
+
+  logout() {
+    apiUtils.clearToken();
+  },
+
   async getHobbies() {
     const { data } = await api.get<BackendHobby[]>('/hobbies');
     return data.map(toFrontendHobby);

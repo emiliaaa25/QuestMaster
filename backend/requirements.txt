@@ -1,3 +1,5 @@
 fastapi>=0.116,<1.0  # The web framework used to build the API [cite: 1]
 sqlmodel>=0.0.24,<0.1  # The library that links Python classes to the Database [cite: 1]
 uvicorn>=0.35,<1.0  # The server software that actually runs the FastAPI code [cite: 1]
+python-jose[cryptography]>=3.3,<4.0
+passlib>=1.7,<2.0

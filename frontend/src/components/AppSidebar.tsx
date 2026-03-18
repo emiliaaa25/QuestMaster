@@ -1,5 +1,5 @@
-import { Home, Target, Trophy, Compass, ListChecks } from 'lucide-react';
-import { Link, useLocation } from 'react-router';
+import { Home, Target, Trophy, Compass, ListChecks, LogOut } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Sidebar,
   SidebarContent,
@@ -10,7 +10,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarHeader,
+  SidebarFooter,
 } from './ui/sidebar';
+import { apiUtils } from '../utils/apiUtils';
 
 const menuItems = [
   { title: 'Dashboard', url: '/', icon: Home },
@@ -22,6 +24,12 @@ const menuItems = [
 
 export function AppSidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    apiUtils.logout();
+    navigate('/login', { replace: true });
+  };
 
   return (
     <Sidebar>
@@ -53,6 +61,16 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter className="p-3">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton onClick={handleLogout}>
+              <LogOut />
+              <span>Logout</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   );
 }
