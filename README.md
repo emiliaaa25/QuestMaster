@@ -2,14 +2,14 @@
 
 ## Project Description
 
-**Quest Master** is a comprehensive hobby tracking and progression system that gamifies personal skill development. Users can explore a catalog of hobbies, create custom quests (tasks), and track their progress through an XP-based reward system.
+**Quest Master** is a hobby tracking app focused on steady progress. Users create an account, log in, join hobbies from a preset catalog, add quests, and track progress through an XP-based system.
 
-The application enables users to:
-- **Browse & Join Hobbies** from a preset catalog (Creative, Physical, Intellectual)
-- **Create Custom Quests** with difficulty levels and time tracking
-- **Track Progress** with status management (To Do → Doing → Done)
-- **Earn XP & Stats** based on completed quests
-- **View Global Analytics** across all hobbies and quests
+The application lets users:
+- **Create an account and log in** with JWT-based authentication
+- **Browse and join hobbies** from a preset catalog (Creative, Physical, Intellectual)
+- **Create custom quests** with difficulty levels and time tracking
+- **Track progress** with status management (To Do -> Doing -> Done)
+- **Earn XP and view analytics** across hobbies and quests
 
 **Domain:** Personal development & hobby gamification
 
@@ -33,7 +33,8 @@ The application enables users to:
 │              FastAPI REST Backend                        │
 │            (Python 3.9+ with uvicorn)                   │
 │                                                          │
-│  GET    /hobbies, /hobbies/{id}, /hobbies/{id}/stats   │
+│  POST   /auth/register, /auth/login                    │
+│  GET    /auth/me, /hobbies, /hobbies/{id}/stats        │
 │  POST   /hobbies, /preset-hobbies/{slug}/join, /quests │
 │  PATCH  /hobbies/{id}, /quests/{id}                    │
 │  DELETE /hobbies/{id}, /quests/{id}                    │
@@ -133,6 +134,31 @@ Represents individual tasks/challenges within a hobby.
 ```
 http://localhost:8000
 ```
+
+### 0. Authentication
+
+All hobby and quest endpoints require a bearer token from the auth endpoints.
+
+#### POST /auth/register
+**Description:** Create a user account and return a bearer token  
+**Method:** POST  
+**Status:** 201 Created | 400 Bad Request | 409 Conflict  
+
+---
+
+#### POST /auth/login
+**Description:** Log in with username or email and return a bearer token  
+**Method:** POST  
+**Status:** 200 OK | 401 Unauthorized  
+
+---
+
+#### GET /auth/me
+**Description:** Return the current authenticated user  
+**Method:** GET  
+**Status:** 200 OK | 401 Unauthorized  
+
+---
 
 ### 1. Hobby Management
 
@@ -446,10 +472,7 @@ http://localhost:8000
    pip install -r requirements.txt
    ```
 
-4. **Initialize the database** (optional - auto-created on first run):
-   ```bash
-   python seed.py
-   ```
+4. **Database note:** tables are created automatically on first run.
 
 5. **Start the FastAPI server:**
    ```bash
@@ -515,6 +538,7 @@ concurrently "cd backend && uvicorn main:app --reload" "cd frontend && npm run d
 ### Collection Structure
 
 The collection includes:
+- **Auth Endpoints** - Register, login, and read current user
 - **Hobby Endpoints** - Create, read, update, delete hobbies
 - **Preset Hobbies** - Browse and join preset hobbies
 - **Quest Endpoints** - Manage quests
@@ -522,21 +546,23 @@ The collection includes:
 
 ### Example Test Workflow
 
-1. **GET /hobbies** - List all hobbies
-2. **POST /hobbies** - Create a new hobby
-3. **GET /preset-hobbies** - Browse preset catalog
-4. **POST /preset-hobbies/{slug}/join** - Join a preset
-5. **POST /quests** - Add a quest to the hobby
-6. **PATCH /quests/{id}** - Mark quest as "Doing" or "Done"
-7. **GET /hobbies/{id}/stats** - Check hobby progress
-8. **GET /stats/global** - View global statistics
-9. **DELETE /hobbies/{id}** - Clean up test data
+1. **POST /auth/register** - Create test account
+2. **POST /auth/login** - Log in and get token
+3. **GET /hobbies** - List all hobbies for current user
+4. **GET /preset-hobbies** - Browse preset catalog
+5. **POST /preset-hobbies/{slug}/join** - Join a preset
+6. **POST /quests** - Add a quest to the hobby
+7. **PATCH /quests/{id}** - Mark quest as "Doing" or "Done"
+8. **GET /hobbies/{id}/stats** - Check hobby progress
+9. **GET /stats/global** - View global statistics
+10. **DELETE /hobbies/{id}** - Clean up test data
 
 ---
 
 ## Features Implemented
 
 ✅ **REST API** - Full CRUD operations with proper HTTP methods and status codes  
+✅ **User Accounts** - Register/login flow with JWT bearer auth  
 ✅ **Database** - SQLite schema with relationships and validations  
 ✅ **Client Interface** - React app with pages for Dashboard, Browse, Quests, Analytics  
 ✅ **Gamification** - XP system, quest difficulty levels, mastery tracking  
@@ -556,7 +582,6 @@ quest_master/
 │   ├── database.py             # Database connection & initialization
 │   ├── database.db             # SQLite database file
 │   ├── preset_hobbies.py       # Preset catalog data
-│   ├── seed.py                 # Database seeding script
 │   └── requirements.txt         # Python dependencies
 ├── frontend/
 │   ├── src/

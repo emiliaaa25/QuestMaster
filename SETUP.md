@@ -1,5 +1,7 @@
 # Quick Start Guide - Quest Master
 
+Quest Master now includes user accounts. Start by registering or logging in, then use the hobby and quest features.
+
 ## System Requirements
 - Python 3.9+ (backend)
 - Node.js 16+ with npm (frontend)
@@ -15,10 +17,8 @@ cd backend
 pip install -r requirements.txt
 ```
 
-### 2. Initialize Database (Optional - Auto-creates on first run)
-```bash
-python seed.py
-```
+### 2. Database Initialization
+No manual seeding step is required. Tables are created automatically when the API starts.
 
 ### 3. Start the API Server
 ```bash
@@ -92,11 +92,13 @@ concurrently "cd backend && python -m uvicorn main:app --reload" "cd frontend &&
 5. **Run Requests** → Try any endpoint
 
 **Recommended Test Order:**
-1. `GET /preset-hobbies` - View hobby catalog
-2. `POST /preset-hobbies/{slug}/join` - Join a hobby
-3. `GET /hobbies/{id}` - View your hobby with quests
-4. `PATCH /quests/{id}` - Update quest status to "Done"
-5. `GET /hobbies/{id}/stats` - Check progress
+1. `POST /auth/register` - Create an account
+2. `POST /auth/login` - Log in and get a token
+3. `GET /preset-hobbies` - View hobby catalog
+4. `POST /preset-hobbies/{slug}/join` - Join a hobby
+5. `GET /hobbies/{id}` - View your hobby with quests
+6. `PATCH /quests/{id}` - Update quest status to "Done"
+7. `GET /hobbies/{id}/stats` - Check progress
 
 ---
 
@@ -104,6 +106,9 @@ concurrently "cd backend && python -m uvicorn main:app --reload" "cd frontend &&
 
 | Method | Endpoint | Purpose |
 |--------|----------|---------|
+| POST | `/auth/register` | Create account + token |
+| POST | `/auth/login` | Login + token |
+| GET | `/auth/me` | Current user profile |
 | GET | `/hobbies` | List all hobbies |
 | POST | `/hobbies` | Create new hobby |
 | GET | `/hobbies/{id}` | Get hobby + quests |
@@ -147,7 +152,7 @@ npm run dev
 ```bash
 # Reset database (delete and recreate)
 rm backend/database.db
-python backend/seed.py
+# Start backend again; tables are recreated automatically
 ```
 
 ### CORS Issues
@@ -170,7 +175,6 @@ quest_master/
 │   ├── database.py (DB connection)
 │   ├── database.db (SQLite file)
 │   ├── preset_hobbies.py (Hobby catalog)
-│   ├── seed.py (Sample data)
 │   └── requirements.txt
 └── frontend/
     ├── src/
@@ -186,6 +190,7 @@ quest_master/
 ## Key Features
 
 ✅ RESTful API (GET, POST, PATCH, DELETE)  
+✅ User authentication (register/login/me)  
 ✅ SQLite Database with relationships  
 ✅ React + TypeScript frontend  
 ✅ Preset hobby catalog  
